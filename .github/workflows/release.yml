@@ -1,0 +1,29 @@
+name: Build and push docker image
+
+on: 
+   push:
+     tags:
+       - '*'
+jobs:
+
+  github:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+
+      - name: Login to docker hub
+        if: success()
+        uses: actions-hub/docker/login@master
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build
+        if: success()
+        run: docker build -t openstandia/terraformer:${IMAGE_TAG} .
+
+      - name: Push to docker hub :tag
+        if: success()
+        uses: actions-hub/docker@master
+        with:
+          args: push openstandia/terraformer:${IMAGE_TAG}
